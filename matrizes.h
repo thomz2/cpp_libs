@@ -85,6 +85,13 @@ void sublinhas(vector<vector<T>>& matriz, int lx, int ly, double c_sub) {
     for (int i = 0; i < matriz[lx].size(); ++i) matriz[lx][i] -= c_sub*matriz[ly][i];
 } 
 
+// Lx <- Lx/c_div
+template <typename T>
+void divlinhas(vector<vector<T>>& matriz, int lx, double c_div) {
+    if (lx >= matriz.size()) return;
+    for (int i = 0; i < matriz[lx].size(); ++i) matriz[lx][i] /= c_div;
+}
+
 template <typename T>
 vector<vector<T>> elim_gauss(vector<vector<T>>& matriz, bool piv = 0) {
     vector<vector<T>> out = matriz;
@@ -118,19 +125,68 @@ vector<vector<T>> elim_gauss(vector<vector<T>>& matriz, bool piv = 0) {
     return out;
 }
 
-// TODO: implementar
-// template <typename T>
-// vector<vector<T>> gauss_jordan(vector<vector<T>>& matriz, bool piv = 0) {
-//     vector<vector<T>> maux = elim_gauss(matriz, piv);
+template <typename T>
+vector<vector<T>> gauss_jordan(vector<vector<T>>& matriz, bool piv = 0) {
+    vector<vector<T>> maux = elim_gauss(matriz, piv);
 
-// }
+    for (int i = maux.size()-1; i >= 0; --i) {
+        for (int k = i - 1; k >= 0; --k) {
+            // ver se troco o sublinhas por um processo sem ser por funcao (mais rapido)
+            sublinhas(maux, k, i, (double)(maux[k][i]/maux[i][i]));
+        }
+    }
+
+    return maux;
+
+}
+
+// INPUT: NxN MATRIX
+template <typename T>
+vector<vector<T>> inversa_gj(vector<vector<T>>& matriz, bool piv = 0) {
+    vector<vector<T>> maux(matriz.size(), vector<T>(matriz[0].size()*2, 0));
+
+    for (int i = 0; i < matriz.size(); ++i) {
+        maux[i][i + matriz.size()] = 1;
+        for (int j = 0; j < matriz[i].size(); ++j) {
+            maux[i][j] = matriz[i][j];
+        }
+    }
+
+    maux = gauss_jordan(maux, piv);
+
+    for (int i = 0; i < maux.size(); ++i) {
+        divlinhas(maux, i, maux[i][i]);
+    }
+
+
+    vector<vector<T>> out(matriz.size(), vector<T>(matriz[0].size(), 0));
+    
+    for (int i = 0; i < matriz.size(); ++i) {
+        for (int j = matriz.size(); j < matriz[i].size()*2; ++j) {
+            out[i][j-matriz.size()] = maux[i][j]; 
+        }
+    }
+
+    return out;
+}
+
+template <typename T>
+double mult_diag_prin(vector<vector<T>>& matriz) {
+    double res = 1;
+    for (int i = 0; i < matriz.size(); ++i) res *= matriz[i][i];
+    return res;
+}
 
 template <typename T>
 double det(vector<vector<T>>& matriz, bool piv = 0) {
     vector<vector<T>> maux = elim_gauss(matriz, piv);
-    double res = 1;
-    for (int i = 0; i < maux.size(); ++i) res *= maux[i][i];
-    return res;
+    return mult_diag_prin(maux);
+}
+
+template <typename T>
+double det_gj(vector<vector<T>>& matriz, bool piv = 0) {
+    vector<vector<T>> maux = gauss_jordan(matriz, piv);
+    return mult_diag_prin(maux);
 }
 
 template <typename T>
@@ -184,8 +240,10 @@ vector<vector<T>> fat_LU(vector<vector<T>>& matriz, bool piv = 0) {
     } 
     
     // vendo como fica a matriz depois do processo
+
     // print_matriz(matriz_sem_resul);
     // print_matriz(L);
+    
     // ou seja, nosso U = matriz_sem_resul, porem nao se deve considerar a ultima coluna
     // e nosso L ja vem sem a ultima coluna
 
