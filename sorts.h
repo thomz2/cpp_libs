@@ -6,8 +6,19 @@
 #include <vector>
 #include <cstring>
 #include <math.h>
+#include <limits.h>
+#include <cstdlib>
 
 using namespace std;
+
+vector<int> getRandomIntVector(int tam, int lim_fechado) {
+    vector<int>* output = new vector<int>;
+    srand(time(0));
+    for (int i = 0; i < tam; ++i) {
+        (*output).push_back((int)(rand() % lim_fechado));
+    }
+    return *output;
+}
 
 template <typename T>
 void print_vetor (vector<T>& v) {
@@ -26,7 +37,7 @@ void counting_sort (vector<int>& v, const int limite) {
     vector<int>* output = new vector<int> (v.size(), 0);
     memset(C, 0, sizeof(C));
     for (int i = 0; i < v.size(); ++i) C[v[i]]++;
-    for (int i = 1; i <= limite; ++i) C[i] += C[i-1];
+    for (int i = 1; i <= limite;  ++i) C[i] += C[i-1];
     for (int i = 0; i < v.size(); ++i) (*output)[C[v[i]]-1] = v[i];
     v = *output;
 }
@@ -117,6 +128,53 @@ void radix_sort(vector<int>& v) {
         v = *B;
         exp *= 10;
     }
+}
+
+template <typename T>
+void intercala(vector<T>& A, int p, int q, int r) {
+    int L[q-p+2] = {0}, R[r-q+1] = {0}, i = 0, j = 0, k;
+
+    for (i = 0, k = p; i < q-p+1; ++i, ++k) {
+        L[i] = A[k];
+    } L[q-p+1] = INT32_MAX;
+
+    for (j = 0, k = q+1; k <= r; ++j, ++k) {
+        R[j] = A[k];
+    } R[r-q] = INT32_MAX;
+
+    for (i = 0, j = 0, k = p; k <= r; ) {
+        if (L[i] <= R[j]) {
+            A[k] = L[i];
+            i++; k++;
+        } else {
+            A[k] = R[j];
+            j++; k++;
+        }
+    } 
+
+}
+
+template<typename T>
+void merge_sort(vector<T>& A, int p, int r) {
+    if (p < r) { // caso o vetor tenha tamanho 1, p = r na chamada recursiva,
+                 // ou seja, p < r eh falso e o if nao eh executado
+        const int q = floor((p+r)/2);
+        merge_sort(A, p, q);
+        merge_sort(A, q+1, r);
+        intercala(A, p, q, r);
+        // o primeiro intercala a ser executado na pilha de chamadas recursivas
+        // necessariamente serah em um vetor de tamanho 1
+    }
+}
+
+template<typename T>
+void merge_sort(vector<T>& A) {
+    merge_sort(A, 0, A.size()-1);
+}
+
+template<typename T>
+void stooge_sort(vector<T>& A) {
+    
 }
 
 #endif
