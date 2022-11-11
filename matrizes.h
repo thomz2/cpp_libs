@@ -136,8 +136,45 @@ vector<vector<T>> gauss_jordan(vector<vector<T>>& matriz, bool piv = 0) {
         }
     }
 
+
     return maux;
 
+}
+
+// TODO: opcao para receber aproximacao
+// AJEITAR ESSA MERDA
+template <typename T>
+vector<T> gauss_jacobi(vector<vector<T>>& matriz, double ee, int iterMax) {
+    vector<vector<T>> mat = matriz;
+    vector<T> aprox(mat.size(), 0);
+    for (int i = 0; i < mat.size(); ++i) aprox[i] = mat[i][mat.size()]/mat[i][i];
+    
+    for (int i = 0; i < mat.size(); ++i) {
+        double r = 1/mat[i][i];
+        for (int j = 0; j < mat[i].size(); ++j) {
+            if (i != j) {
+                mat[i][j] *= r;
+            }
+        }
+    }
+
+    int k = 0;
+    
+    while (k < iterMax){ // AND norma > ee
+        k++;
+        for (int i = 0; i < mat.size(); ++i) {
+            double soma = 0;
+            for (int j = 0; j < mat.size(); ++j) {
+                if (i != j) {
+                    soma += mat[i][j]*aprox[j];
+                }
+            }
+            // v[i] <- b[i] - soma
+            
+            aprox[i] -= soma; 
+        }
+    } 
+    
 }
 
 // INPUT: NxN MATRIX
