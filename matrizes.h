@@ -162,7 +162,7 @@ vector<T> gauss_jacobi(vector<vector<T>>& matriz, double ee, int iterMax) {
 
     int k = 0;
     
-    while (k < iterMax){ // AND norma > ee
+    while (k < iterMax){
         k++;
         vector<T> aproxaux(mat.size(), 0);
         for (int i = 0; i < mat.size(); ++i) {
@@ -172,7 +172,6 @@ vector<T> gauss_jacobi(vector<vector<T>>& matriz, double ee, int iterMax) {
                     soma += mat[i][j]*aprox[j]/mat[i][i];
                 }
             }
-            // v[i] <- b[i] - soma
             aproxaux[i] = (mat[i][mat.size()]/mat[i][i]) - soma;
         }
         if (calcula_norma(aproxaux, aprox, aprox.size()) <= ee) break;
