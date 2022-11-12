@@ -11,8 +11,9 @@ using namespace std;
 
 template <typename T>
 void print_vetor (vector<T>& v) {
+    cout << "[ "; 
     for (int i = 0; i < v.size(); ++i) cout << v[i] << ' ';
-    cout << endl;
+    cout << "]" << endl;
 }
 
 template <typename T>
@@ -141,40 +142,49 @@ vector<vector<T>> gauss_jordan(vector<vector<T>>& matriz, bool piv = 0) {
 
 }
 
+// dr (erro relativo)
+template <typename T>
+double calcula_norma(vector<T>& novo, vector<T>& antigo, int n) {
+    double normaNum = 0, normaDen = 0;
+    for (int i = 0; i < n; ++i) {
+        double t = abs(novo[i]-antigo[i]);
+        if (t > normaNum) normaNum = t;
+        if (abs(novo[i]) > normaDen) normaDen = abs(novo[i]);
+    }
+    return normaNum/normaDen;
+}
+
 // TODO: opcao para receber aproximacao
-// AJEITAR ESSA MERDA
 template <typename T>
 vector<T> gauss_jacobi(vector<vector<T>>& matriz, double ee, int iterMax) {
     vector<vector<T>> mat = matriz;
     vector<T> aprox(mat.size(), 0);
-    for (int i = 0; i < mat.size(); ++i) aprox[i] = mat[i][mat.size()]/mat[i][i];
-    
-    for (int i = 0; i < mat.size(); ++i) {
-        double r = 1/mat[i][i];
-        for (int j = 0; j < mat[i].size(); ++j) {
-            if (i != j) {
-                mat[i][j] *= r;
-            }
-        }
-    }
 
     int k = 0;
     
     while (k < iterMax){ // AND norma > ee
         k++;
+        vector<T> aproxaux(mat.size(), 0);
         for (int i = 0; i < mat.size(); ++i) {
             double soma = 0;
             for (int j = 0; j < mat.size(); ++j) {
                 if (i != j) {
-                    soma += mat[i][j]*aprox[j];
+                    soma += mat[i][j]*aprox[j]/mat[i][i];
                 }
             }
             // v[i] <- b[i] - soma
-            
-            aprox[i] -= soma; 
+            aproxaux[i] = (mat[i][mat.size()]/mat[i][i]) - soma;
         }
+        if (calcula_norma(aproxaux, aprox, aprox.size()) <= ee) break;
+        
+        aprox = aproxaux;
+
     } 
-    
+
+    print_vetor(aprox);
+
+    return aprox;
+
 }
 
 // INPUT: NxN MATRIX
