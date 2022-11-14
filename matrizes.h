@@ -156,7 +156,7 @@ double calcula_norma(vector<T>& novo, vector<T>& antigo, int n) {
 
 // TODO: opcao para receber aproximacao
 template <typename T>
-vector<T> gauss_jacobi(vector<vector<T>>& matriz, double ee, int iterMax) {
+vector<T> gauss_jacobi(vector<vector<T>>& matriz, double ee, int iterMax = 50) {
     vector<vector<T>> mat = matriz;
     vector<T> aprox(mat.size(), 0);
 
@@ -174,13 +174,9 @@ vector<T> gauss_jacobi(vector<vector<T>>& matriz, double ee, int iterMax) {
             }
             aproxaux[i] = (mat[i][mat.size()]/mat[i][i]) - soma;
         }
-        if (calcula_norma(aproxaux, aprox, aprox.size()) <= ee) break;
-        
+        if (calcula_norma(aproxaux, aprox, aprox.size()) < ee) {aprox = aproxaux; break;}
         aprox = aproxaux;
-
     } 
-
-    print_vetor(aprox);
 
     return aprox;
 
