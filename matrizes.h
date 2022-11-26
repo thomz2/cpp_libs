@@ -154,12 +154,10 @@ double calcula_norma(vector<T>& novo, vector<T>& antigo, int n) {
     return normaNum/normaDen;
 }
 
-// TODO: opcao para receber aproximacao
 template <typename T>
-vector<T> gauss_jacobi(vector<vector<T>>& matriz, double ee, int iterMax = 50) {
+vector<T> gauss_jacobi(vector<vector<T>>& matriz, double ee, vector<T>& apr, int iterMax = 50) {
+    vector<T> aprox = apr;
     vector<vector<T>> mat = matriz;
-    vector<T> aprox(mat.size(), 0);
-
     int k = 0;
     
     while (k < iterMax){
@@ -179,7 +177,46 @@ vector<T> gauss_jacobi(vector<vector<T>>& matriz, double ee, int iterMax = 50) {
     } 
 
     return aprox;
+}
 
+template <typename T>
+vector<T> gauss_jacobi(vector<vector<T>>& matriz, double ee, int iterMax = 50) {
+    vector<T> apr(matriz.size(), 0);
+    return gauss_jacobi(matriz, ee, apr, iterMax);
+}
+
+template <typename T>
+vector<T> gauss_seidel(vector<vector<T>>& matriz, double ee, vector<T>& apr, int iterMax = 50) {
+    vector<vector<T>> mat = matriz;
+    vector<T> aprox = apr;
+    vector<T> aproxaux(mat.size(), 0);
+
+    int k = 0;
+
+    while (k < iterMax) {
+        ++k;
+        for (int i = 0; i < mat.size(); ++i) {
+            double soma = 0;
+            for (int j = 0; j < mat.size(); ++j) {
+                if (i != j) {
+                    soma += mat[i][j]*aprox[j]/mat[i][i];
+                }
+            }
+            double bi = mat[i][mat.size()]/mat[i][i];
+            aproxaux[i] = aprox[i];
+            aprox[i] = bi - soma;
+        }
+        if (calcula_norma(aprox, aproxaux, aprox.size()) < ee) { return aprox; }
+    }
+    
+    return aprox;
+
+}
+
+template <typename T>
+vector<T> gauss_seidel(vector<vector<T>>& matriz, double ee, int iterMax = 50) {
+    vector<T> aprox(matriz.size(), 0);
+    return gauss_seidel(matriz, ee, aprox, iterMax);
 }
 
 // INPUT: NxN MATRIX
